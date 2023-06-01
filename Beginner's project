@@ -1,0 +1,24 @@
+import requests
+import csv
+from bs4 import BeautifulSoup
+url = 'https://www.tandfonline.com/action/showPublications?pubType=journal&ConceptID=4267&pageSize=50&subjectTitle=&startPage=1'
+req = requests.get(url,timeout=5)
+html = req.text
+bf = BeautifulSoup(html)
+commodity_data = []
+ol_data = bf.find_all('ol',class_='browse-results browse')
+for i in ol_data[0].find_all('article'):
+	title_data = i.find_all('h4',class_='art_title')
+	access_data = i.find_all('div',class_='browse-right-column')
+	for access in access_data[0].find_all('span',class_='part-tooltip'):
+		permission = access.string
+	for ti in title_data[0].find_all('a',class_='ref'):
+		t = ti.string
+	commodity_data.append([permission]+[t])
+
+title = ["权限类型","刊物名称"]
+with open ('commodity_data.csv','a+',newline='',encoding='utf-8') as csvfile:
+	writer = csv.writer(csvfile)
+	writer.writerow(title)
+	for row in commodity_data:
+		writer.writerow(row)
